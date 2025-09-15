@@ -1,2 +1,2 @@
 **Unreleased**
-* Add beautifulsoup4 to requirements.txt
+* Cyberint Alerts app initial release
