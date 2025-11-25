@@ -4,6 +4,7 @@
 .vscode/
 .idea/
 .DS_Store
+__MACOSX
 
 # Dependencies
 node_modules/
