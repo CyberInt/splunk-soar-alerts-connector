@@ -1,38 +1,24 @@
-# Copyright (c) 2025 Splunk Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 # -----------------------------------------
 # Phantom App Connector python file
 # -----------------------------------------
 
-import json
-
 import phantom.app as phantom
-import requests
-from bs4 import BeautifulSoup
 from phantom.action_result import ActionResult
 from phantom.base_connector import BaseConnector
-
 from cyberintalerts_consts import (
+    TakedownReason,
+    Status,
+    ClosureReason,
     ALERTS_ENDPOINT,
     ALERTS_STATUS_ENDPOINT,
-    TAKEDOWN_REQUEST_ENDPOINT,
     TAKEDOWN_SUBMIT_ENDPOINT,
-    ClosureReason,
-    Status,
-    TakedownReason,
+    TAKEDOWN_REQUEST_ENDPOINT,
 )
+import requests
+import json
+from bs4 import BeautifulSoup
 
 
 class RetVal(tuple):
@@ -54,7 +40,7 @@ def map_severity(severity_str):
 
 class CyberintAlertsConnector(BaseConnector):
     def __init__(self):
-        super().__init__()
+        super(CyberintAlertsConnector, self).__init__()
         self._state = None
         self._base_url = None
         self._access_token = None
@@ -76,6 +62,10 @@ class CyberintAlertsConnector(BaseConnector):
         self._state = self.load_state()
         config = self.get_config()
         self._base_url = config.get("base_url")
+        self._base_url = self._base_url.rstrip("/")
+        data_residency = config.get("data_residency", "US")
+        if data_residency == "EU":
+            self._base_url = f"{self._base_url}/eu"
         self._access_token = config.get("access_token")
         self._customer_name = config.get("customer_name")
         return phantom.APP_SUCCESS
@@ -91,7 +81,9 @@ class CyberintAlertsConnector(BaseConnector):
                 resp_json = r.json()
             except Exception as e:
                 return RetVal(
-                    action_result.set_status(phantom.APP_ERROR, f"Unable to parse JSON response. Error: {e}"),
+                    action_result.set_status(
+                        phantom.APP_ERROR, f"Unable to parse JSON response. Error: {e}"
+                    ),
                     None,
                 )
             if 200 <= r.status_code < 399:
@@ -102,7 +94,9 @@ class CyberintAlertsConnector(BaseConnector):
         if "html" in r.headers.get("Content-Type", ""):
             try:
                 soup = BeautifulSoup(r.text, "html.parser")
-                error_text = "\n".join([x.strip() for x in soup.text.split("\n") if x.strip()])
+                error_text = "\n".join(
+                    [x.strip() for x in soup.text.split("\n") if x.strip()]
+                )
             except:
                 error_text = "Cannot parse error details"
             message = f"Status Code: {r.status_code}. Data from server:\n{error_text}\n"
@@ -112,7 +106,9 @@ class CyberintAlertsConnector(BaseConnector):
             if r.status_code == 200:
                 return RetVal(phantom.APP_SUCCESS, {})
             return RetVal(
-                action_result.set_status(phantom.APP_ERROR, "Empty response and no information in the header"),
+                action_result.set_status(
+                    phantom.APP_ERROR, "Empty response and no information in the header"
+                ),
                 None,
             )
 
@@ -133,16 +129,22 @@ class CyberintAlertsConnector(BaseConnector):
             request_func = getattr(requests, method)
         except AttributeError:
             return RetVal(
-                action_result.set_status(phantom.APP_ERROR, f"Invalid method: {method}"),
+                action_result.set_status(
+                    phantom.APP_ERROR, f"Invalid method: {method}"
+                ),
                 None,
             )
 
         url = self._base_url + endpoint
         try:
-            r = request_func(url, verify=config.get("verify_server_cert", False), **kwargs)
+            r = request_func(
+                url, verify=config.get("verify_server_cert", False), **kwargs
+            )
         except Exception as e:
             return RetVal(
-                action_result.set_status(phantom.APP_ERROR, f"Error Connecting to server. Details: {e}"),
+                action_result.set_status(
+                    phantom.APP_ERROR, f"Error Connecting to server. Details: {e}"
+                ),
                 None,
             )
 
@@ -151,7 +153,9 @@ class CyberintAlertsConnector(BaseConnector):
     def _get_full_alert_from_ref_id(self, ref_ids: list[str], action_result):
         full_alerts = []
         for ref_id in ref_ids:
-            ret_val, response = self._make_rest_call(f"{ALERTS_ENDPOINT}/{ref_id}", action_result)
+            ret_val, response = self._make_rest_call(
+                f"{ALERTS_ENDPOINT}/{ref_id}", action_result
+            )
             if phantom.is_fail(ret_val):
                 return ret_val, None
             full_alerts.append(response["alert"])
@@ -173,7 +177,9 @@ class CyberintAlertsConnector(BaseConnector):
     def _handle_get_enriched_alerts(self, param):
         action_result = self.add_action_result(ActionResult(dict(param)))
         self.debug_print(f"Fetching alerts from {ALERTS_ENDPOINT}")
-        ret_val, response = self._make_rest_call(ALERTS_ENDPOINT, action_result, method="post", json={})
+        ret_val, response = self._make_rest_call(
+            ALERTS_ENDPOINT, action_result, method="post", json={}
+        )
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
@@ -189,7 +195,9 @@ class CyberintAlertsConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
-        ret_val, enriched_alerts = self._enrich_alert_indicators(full_alerts, action_result)
+        ret_val, enriched_alerts = self._enrich_alert_indicators(
+            full_alerts, action_result
+        )
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
@@ -205,11 +213,17 @@ class CyberintAlertsConnector(BaseConnector):
 
         status = param["Status"]
         if status not in [member.value for member in Status]:
-            return action_result.set_status(phantom.APP_ERROR, f"Invalid status value: {status}")
+            return action_result.set_status(
+                phantom.APP_ERROR, f"Invalid status value: {status}"
+            )
 
         closure_reason = param.get("Closure_Reason")
-        if closure_reason and closure_reason not in [member.value for member in ClosureReason]:
-            return action_result.set_status(phantom.APP_ERROR, f"Invalid closure_reason value: {closure_reason}")
+        if closure_reason and closure_reason not in [
+            member.value for member in ClosureReason
+        ]:
+            return action_result.set_status(
+                phantom.APP_ERROR, f"Invalid closure_reason value: {closure_reason}"
+            )
 
         body = {
             "alert_ref_ids": alert_ref_ids,
@@ -219,7 +233,9 @@ class CyberintAlertsConnector(BaseConnector):
                 "closure_reason_description": param.get("Reason_Description"),
             },
         }
-        ret_val, response = self._make_rest_call(ALERTS_STATUS_ENDPOINT, action_result, method="put", json=body)
+        ret_val, response = self._make_rest_call(
+            ALERTS_STATUS_ENDPOINT, action_result, method="put", json=body
+        )
         if phantom.is_fail(ret_val):
             return action_result.get_status()
         action_result.add_data(response)
@@ -230,7 +246,9 @@ class CyberintAlertsConnector(BaseConnector):
 
         reason = param["Reason"]
         if reason not in [member.value for member in TakedownReason]:
-            return action_result.set_status(phantom.APP_ERROR, f"Invalid takedown reason value: {reason}")
+            return action_result.set_status(
+                phantom.APP_ERROR, f"Invalid takedown reason value: {reason}"
+            )
 
         takedown = {
             "customer": param["Customer_ID"],
@@ -241,7 +259,9 @@ class CyberintAlertsConnector(BaseConnector):
             "alert_id": param.get("Alert_ID"),
             "note": param.get("Note"),
         }
-        ret_val, response = self._make_rest_call(TAKEDOWN_SUBMIT_ENDPOINT, action_result, method="post", json=takedown)
+        ret_val, response = self._make_rest_call(
+            TAKEDOWN_SUBMIT_ENDPOINT, action_result, method="post", json=takedown
+        )
         if phantom.is_fail(ret_val):
             return action_result.get_status()
         action_result.add_data(response)
@@ -251,10 +271,14 @@ class CyberintAlertsConnector(BaseConnector):
         action_result = self.add_action_result(ActionResult(dict(param)))
         customer_id = param.get("Customer_ID")
         if not customer_id:
-            return action_result.set_status(phantom.APP_ERROR, "Customer_ID is a required parameter.")
+            return action_result.set_status(
+                phantom.APP_ERROR, "Customer_ID is a required parameter."
+            )
 
         body = {"customer_id": customer_id, "filters": {}}
-        ret_val, response = self._make_rest_call(TAKEDOWN_REQUEST_ENDPOINT, action_result, method="post", json=body)
+        ret_val, response = self._make_rest_call(
+            TAKEDOWN_REQUEST_ENDPOINT, action_result, method="post", json=body
+        )
         if phantom.is_fail(ret_val):
             return action_result.get_status()
         for takedown in response.get("requests", []):
@@ -264,7 +288,9 @@ class CyberintAlertsConnector(BaseConnector):
     def _handle_test_connectivity(self, param):
         action_result = self.add_action_result(ActionResult(dict(param)))
         self.save_progress("Connecting to endpoint...")
-        ret_val, response = self._make_rest_call(ALERTS_ENDPOINT, action_result, method="post", json={})
+        ret_val, response = self._make_rest_call(
+            ALERTS_ENDPOINT, action_result, method="post", json={}
+        )
         if phantom.is_fail(ret_val):
             self.save_progress("Test Connectivity Failed.")
             return action_result.get_status()
@@ -276,7 +302,9 @@ class CyberintAlertsConnector(BaseConnector):
         self.save_progress("Starting alert ingestion...")
 
         self.debug_print("Fetching raw alerts...")
-        ret_val, response = self._make_rest_call(ALERTS_ENDPOINT, action_result, method="post", json={})
+        ret_val, response = self._make_rest_call(
+            ALERTS_ENDPOINT, action_result, method="post", json={}
+        )
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
@@ -288,11 +316,15 @@ class CyberintAlertsConnector(BaseConnector):
         ref_ids = [alert["ref_id"] for alert in alerts]
         self.debug_print(f"Enriching {len(ref_ids)} alerts: {ref_ids}")
 
-        ret_val, enriched_alerts = self._get_full_alert_from_ref_id(ref_ids, action_result)
+        ret_val, enriched_alerts = self._get_full_alert_from_ref_id(
+            ref_ids, action_result
+        )
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
-        ret_val, enriched_alerts = self._enrich_alert_indicators(enriched_alerts, action_result)
+        ret_val, enriched_alerts = self._enrich_alert_indicators(
+            enriched_alerts, action_result
+        )
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
@@ -311,10 +343,14 @@ class CyberintAlertsConnector(BaseConnector):
             }
             status, message, container_id = self.save_container(container)
             if phantom.is_fail(status):
-                self.debug_print(f"Failed to save container for alert {alert.get('ref_id')}: {message}")
+                self.debug_print(
+                    f"Failed to save container for alert {alert.get('ref_id')}: {message}"
+                )
                 continue
 
-            self.debug_print(f"Successfully created container {container_id} for alert {alert.get('ref_id')}")
+            self.debug_print(
+                f"Successfully created container {container_id} for alert {alert.get('ref_id')}"
+            )
 
             # 2. "Catch-All" Artifact for remaining details
             alert_details = alert.copy()
@@ -335,8 +371,12 @@ class CyberintAlertsConnector(BaseConnector):
 
             # 3. Process and save indicators
             for indicator in alert.get("indicators", []):
-                self.save_progress(f"Full Indicator Object: {json.dumps(indicator, indent=2)}")
-                self.debug_print(f"Adding indicator {indicator.get('value')} to container {container_id}")
+                self.save_progress(
+                    f"Full Indicator Object: {json.dumps(indicator, indent=2)}"
+                )
+                self.debug_print(
+                    f"Adding indicator {indicator.get('value')} to container {container_id}"
+                )
                 artifact = {
                     "name": indicator.get("value"),
                     "cef": {
@@ -380,8 +420,8 @@ class CyberintAlertsConnector(BaseConnector):
 
 
 if __name__ == "__main__":
-    import argparse
     import sys
+    import argparse
 
     parser = argparse.ArgumentParser()
     parser.add_argument("input_test_json", help="Input Test JSON file")
