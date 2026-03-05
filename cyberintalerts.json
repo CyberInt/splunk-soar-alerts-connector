@@ -7,15 +7,15 @@
     "logo": "logo_cyberintalerts.svg",
     "logo_dark": "logo_cyberintalerts_dark.svg",
     "product_name": "Cyberint Alerts",
-    "python_version": "3.13",
+    "python_version": "3",
     "product_version_regex": ".*",
     "publisher": "Check Point Cyberint",
     "license": "Copyright (c) Check Point Cyberint, 2026",
-    "app_version": "1.0.3",
+    "app_version": "1.0.4",
     "utctime_updated": "2026-03-05T11:00:02.949568Z",
     "package_name": "phantom_cyberintalerts",
     "main_module": "cyberintalerts_connector.py",
-    "min_phantom_version": "6.4.0",
+    "min_phantom_version": "7.0.0",
     "app_wizard_version": "1.0.0",
     "configuration": {
         "base_url": {
@@ -38,6 +38,53 @@
             "required": true,
             "order": 2,
             "name": "Company Name"
+        },
+        "fetch_severity": {
+            "description": "Severities to fetch. If none is chosen, all severity levels will be returned",
+            "data_type": "string",
+            "required": false,
+            "order": 3,
+            "name": "Fetch Severity",
+            "value_list": [
+                "low",
+                "medium",
+                "high",
+                "very_high"
+            ]
+        },
+        "fetch_status": {
+            "description": "Statuses to fetch. If none is chosen, all statuses will be returned",
+            "data_type": "string",
+            "required": false,
+            "order": 4,
+            "name": "Fetch Status",
+            "value_list": [
+                "open",
+                "acknowledged",
+                "closed"
+            ]
+        },
+        "fetch_environment": {
+            "description": "Environments to fetch (comma separated). If empty, all available environments will be returned",
+            "data_type": "string",
+            "required": false,
+            "order": 5,
+            "name": "Fetch Environment"
+        },
+        "fetch_type": {
+            "description": "Types to fetch (comma separated). If empty, all types will be returned",
+            "data_type": "string",
+            "required": false,
+            "order": 6,
+            "name": "Fetch Type"
+        },
+        "max_fetch": {
+            "description": "Max number of alerts per fetch. Default is 10, max is 100",
+            "data_type": "numeric",
+            "required": false,
+            "order": 7,
+            "name": "Fetch Limit",
+            "default": 10
         }
     },
     "actions": [
@@ -58,122 +105,8 @@
             "description": "Get alerts and enrich them with indicator details",
             "type": "investigate",
             "read_only": true,
-            "parameters": {
-                "Alert_Types": {
-                    "description": "Comma-separated list of alert types to fetch (leave empty for all types)",
-                    "data_type": "string",
-                    "required": false,
-                    "order": 0,
-                    "value_list": [
-                        "",
-                        "refund_fraud",
-                        "carding",
-                        "coupon_fraud",
-                        "money_laundering",
-                        "victim_report",
-                        "malicious_insider",
-                        "extortion",
-                        "phishing_email",
-                        "phishing_kit",
-                        "phishing_website",
-                        "lookalike_domain",
-                        "phishing_target_list",
-                        "malicious_file",
-                        "reconnaissance",
-                        "automated_attack_tools",
-                        "business_logic_bypass",
-                        "target_list",
-                        "official_social_media_profile",
-                        "impersonation",
-                        "intellectual_property_infringement",
-                        "unauthorized_trading",
-                        "negative_sentiment",
-                        "fake_job_posting",
-                        "defacement",
-                        "compromised_pii",
-                        "internal_information_disclosure",
-                        "compromised_payment_cards",
-                        "compromised_employee_credentials",
-                        "compromised_customer_credentials",
-                        "compromised_access_token",
-                        "ransomware",
-                        "exposed_web_interfaces",
-                        "hijackable_subdomains",
-                        "website_vulnerabilities",
-                        "vulnerabilities",
-                        "exposed_cloud_storage",
-                        "exploitable_ports",
-                        "mail_servers_in_blacklist",
-                        "server_connected_to_botnet",
-                        "email_security_issues",
-                        "certificate_authority_issues",
-                        "user_defined_saved_query",
-                        "other",
-                        "ssl_tls",
-                        "web_app_security"
-                    ]
-                },
-                "Severities": {
-                    "description": "Comma-separated severity levels to filter (leave empty for all severities)",
-                    "data_type": "string",
-                    "required": false,
-                    "order": 1,
-                    "value_list": [
-                        "",
-                        "low",
-                        "medium",
-                        "high",
-                        "very_high"
-                    ]
-                },
-                "Statuses": {
-                    "description": "Comma-separated statuses to filter (leave empty for all statuses)",
-                    "data_type": "string",
-                    "required": false,
-                    "order": 2,
-                    "value_list": [
-                        "",
-                        "open",
-                        "acknowledged",
-                        "closed"
-                    ]
-                },
-                "Include_CSV_Attachments": {
-                    "description": "Include CSV attachments as JSON content in the response",
-                    "data_type": "boolean",
-                    "required": false,
-                    "default": false,
-                    "order": 3
-                },
-                "Page_Size": {
-                    "description": "Number of alerts to fetch per page (10-100)",
-                    "data_type": "numeric",
-                    "required": false,
-                    "default": 50,
-                    "order": 4
-                }
-            },
+            "parameters": {},
             "output": [
-                {
-                    "data_path": "action_result.parameter.Alert_Types",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.parameter.Severities",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.parameter.Statuses",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.parameter.Include_CSV_Attachments",
-                    "data_type": "boolean"
-                },
-                {
-                    "data_path": "action_result.parameter.Page_Size",
-                    "data_type": "numeric"
-                },
                 {
                     "data_path": "action_result.message",
                     "data_type": "string"
@@ -458,9 +391,6 @@
             "versions": "EQ(*)"
         }
     ],
-    "pip39_dependencies": {
-        "wheel": []
-    },
     "pip313_dependencies": {
         "wheel": []
     }

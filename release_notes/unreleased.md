@@ -1,1 +1,1 @@
-**Unreleased**
+* Add polling filters: fetch types, severity, status, include CSV attachments, page size

@@ -1,4 +1,4 @@
-# Copyright (c) 2025-2026 Splunk Inc.
+# Copyright (c) 2026 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -78,7 +78,29 @@ class CyberintAlertsConnector(BaseConnector):
         self._base_url = config.get("base_url")
         self._access_token = config.get("access_token")
         self._customer_name = config.get("customer_name")
+        self._fetch_severity = config.get("fetch_severity")
+        self._fetch_status = config.get("fetch_status")
+        self._fetch_environment = config.get("fetch_environment")
+        self._fetch_type = config.get("fetch_type")
+        self._max_fetch = config.get("max_fetch")
         return phantom.APP_SUCCESS
+
+    def _build_alerts_request_body(self):
+        body = {}
+        filters = {}
+        if self._fetch_severity:
+            filters["severity"] = [s.strip() for s in self._fetch_severity.split(",") if s.strip()]
+        if self._fetch_status:
+            filters["status"] = [s.strip() for s in self._fetch_status.split(",") if s.strip()]
+        if self._fetch_environment:
+            filters["environment"] = [s.strip() for s in self._fetch_environment.split(",") if s.strip()]
+        if self._fetch_type:
+            filters["type"] = [s.strip() for s in self._fetch_type.split(",") if s.strip()]
+        if filters:
+            body["filters"] = filters
+        if self._max_fetch:
+            body["page_size"] = int(self._max_fetch)
+        return body
 
     def _process_response(self, r, action_result):
         if hasattr(action_result, "add_debug_data"):
@@ -103,7 +125,7 @@ class CyberintAlertsConnector(BaseConnector):
             try:
                 soup = BeautifulSoup(r.text, "html.parser")
                 error_text = "\n".join([x.strip() for x in soup.text.split("\n") if x.strip()])
-            except Exception:
+            except:
                 error_text = "Cannot parse error details"
             message = f"Status Code: {r.status_code}. Data from server:\n{error_text}\n"
             return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
@@ -170,54 +192,10 @@ class CyberintAlertsConnector(BaseConnector):
                 alert["indicators"][idx] = response
         return phantom.APP_SUCCESS, alerts
 
-    def _build_alerts_filter(self, param):
-        """Build filters dictionary from action parameters."""
-        filters = {}
-
-        # Parse alert types (comma-separated or single value from dropdown)
-        alert_types = param.get("Alert_Types", "")
-        if alert_types:
-            types_list = [t.strip() for t in alert_types.split(",") if t.strip()]
-            if types_list:
-                filters["type"] = types_list
-
-        # Parse severities (comma-separated or single value from dropdown)
-        severities = param.get("Severities", "")
-        if severities:
-            sev_list = [s.strip() for s in severities.split(",") if s.strip()]
-            if sev_list:
-                filters["severity"] = sev_list
-
-        # Parse statuses (comma-separated or single value from dropdown)
-        statuses = param.get("Statuses", "")
-        if statuses:
-            status_list = [s.strip() for s in statuses.split(",") if s.strip()]
-            if status_list:
-                filters["status"] = status_list
-
-        return filters if filters else None
-
     def _handle_get_enriched_alerts(self, param):
         action_result = self.add_action_result(ActionResult(dict(param)))
-
-        # Build request body with filters
-        filters = self._build_alerts_filter(param)
-        include_csv = param.get("Include_CSV_Attachments", False)
-        page_size = param.get("Page_Size", 50)
-
-        # Validate page_size range
-        if page_size and (page_size < 10 or page_size > 100):
-            return action_result.set_status(phantom.APP_ERROR, "Page_Size must be between 10 and 100")
-
-        body = {
-            "size": page_size,
-            "include_csv_attachments_as_json_content": include_csv,
-        }
-        if filters:
-            body["filters"] = filters
-
-        self.debug_print(f"Fetching alerts from {ALERTS_ENDPOINT} with body: {body}")
-        ret_val, response = self._make_rest_call(ALERTS_ENDPOINT, action_result, method="post", json=body)
+        self.debug_print(f"Fetching alerts from {ALERTS_ENDPOINT}")
+        ret_val, response = self._make_rest_call(ALERTS_ENDPOINT, action_result, method="post", json=self._build_alerts_request_body())
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
@@ -308,7 +286,7 @@ class CyberintAlertsConnector(BaseConnector):
     def _handle_test_connectivity(self, param):
         action_result = self.add_action_result(ActionResult(dict(param)))
         self.save_progress("Connecting to endpoint...")
-        ret_val, response = self._make_rest_call(ALERTS_ENDPOINT, action_result, method="post", json={})
+        ret_val, response = self._make_rest_call(ALERTS_ENDPOINT, action_result, method="post", json=self._build_alerts_request_body())
         if phantom.is_fail(ret_val):
             self.save_progress("Test Connectivity Failed.")
             return action_result.get_status()
@@ -320,7 +298,7 @@ class CyberintAlertsConnector(BaseConnector):
         self.save_progress("Starting alert ingestion...")
 
         self.debug_print("Fetching raw alerts...")
-        ret_val, response = self._make_rest_call(ALERTS_ENDPOINT, action_result, method="post", json={})
+        ret_val, response = self._make_rest_call(ALERTS_ENDPOINT, action_result, method="post", json=self._build_alerts_request_body())
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
