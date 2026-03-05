@@ -55,6 +55,11 @@ def map_severity(severity_str):
 class CyberintAlertsConnector(BaseConnector):
     def __init__(self):
         super().__init__()
+        self._max_fetch = None
+        self._fetch_type = None
+        self._fetch_environment = None
+        self._fetch_status = None
+        self._fetch_severity = None
         self._state = None
         self._base_url = None
         self._access_token = None
@@ -82,24 +87,24 @@ class CyberintAlertsConnector(BaseConnector):
         self._fetch_status = config.get("fetch_status")
         self._fetch_environment = config.get("fetch_environment")
         self._fetch_type = config.get("fetch_type")
-        self._max_fetch = config.get("max_fetch")
+        self._max_fetch = config.get("max_fetch", 10)
         return phantom.APP_SUCCESS
 
     def _build_alerts_request_body(self):
-        body = {}
+        body = {"page": 1}
         filters = {}
         if self._fetch_severity:
             filters["severity"] = [s.strip() for s in self._fetch_severity.split(",") if s.strip()]
         if self._fetch_status:
             filters["status"] = [s.strip() for s in self._fetch_status.split(",") if s.strip()]
         if self._fetch_environment:
-            filters["environment"] = [s.strip() for s in self._fetch_environment.split(",") if s.strip()]
+            filters["environments"] = [s.strip() for s in self._fetch_environment.split(",") if s.strip()]
         if self._fetch_type:
             filters["type"] = [s.strip() for s in self._fetch_type.split(",") if s.strip()]
         if filters:
             body["filters"] = filters
         if self._max_fetch:
-            body["page_size"] = int(self._max_fetch)
+            body["size"] = int(self._max_fetch)
         return body
 
     def _process_response(self, r, action_result):
@@ -113,8 +118,7 @@ class CyberintAlertsConnector(BaseConnector):
                 resp_json = r.json()
             except Exception as e:
                 return RetVal(
-                    action_result.set_status(phantom.APP_ERROR, f"Unable to parse JSON response. Error: {e}"),
-                    None,
+                    action_result.set_status(phantom.APP_ERROR, f"Unable to parse JSON response. Error: {e}"), None,
                 )
             if 200 <= r.status_code < 399:
                 return RetVal(phantom.APP_SUCCESS, resp_json)
