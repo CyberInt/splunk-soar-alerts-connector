@@ -74,13 +74,13 @@
             "order": 7,
             "name": "Start Time",
             "value_list": [
-                "last_1h",
-                "last_24h",
-                "last_7d",
-                "last_30d",
-                "last_90d"
+                "Last 1 Hour",
+                "Last 24 Hours",
+                "Last 7 Days",
+                "Last 30 Days",
+                "Last 90 Days"
             ],
-            "default": "last_24h"
+            "default": "Last 24 Hours"
         },
         "max_fetch": {
             "description": "Max number of alerts per fetch. Default is 10, max is 100",

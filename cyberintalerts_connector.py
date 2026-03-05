@@ -89,18 +89,18 @@ class CyberintAlertsConnector(BaseConnector):
         self._fetch_status = config.get("fetch_status")
         self._fetch_environment = config.get("fetch_environment")
         self._fetch_type = config.get("fetch_type")
-        self._start_time = config.get("start_time", "last_24h")
+        self._start_time = config.get("start_time", "Last 24 Hours")
         self._max_fetch = config.get("max_fetch", 10)
         return phantom.APP_SUCCESS
 
     @staticmethod
     def _parse_start_time(start_time):
         deltas = {
-            "last_1h": timedelta(hours=1),
-            "last_24h": timedelta(hours=24),
-            "last_7d": timedelta(days=7),
-            "last_30d": timedelta(days=30),
-            "last_90d": timedelta(days=90),
+            "Last 1 Hour": timedelta(hours=1),
+            "Last 24 Hours": timedelta(hours=24),
+            "Last 7 Days": timedelta(days=7),
+            "Last 30 Days": timedelta(days=30),
+            "Last 90 Days": timedelta(days=90),
         }
         delta = deltas.get(start_time, timedelta(hours=24))
         now = datetime.now(timezone.utc)
