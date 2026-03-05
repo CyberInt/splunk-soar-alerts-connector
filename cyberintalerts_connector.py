@@ -17,6 +17,7 @@
 # -----------------------------------------
 
 import json
+from datetime import datetime, timedelta, timezone
 
 import phantom.app as phantom
 import requests
@@ -56,6 +57,7 @@ class CyberintAlertsConnector(BaseConnector):
     def __init__(self):
         super().__init__()
         self._max_fetch = None
+        self._start_time = None
         self._fetch_type = None
         self._fetch_environment = None
         self._fetch_status = None
@@ -87,8 +89,22 @@ class CyberintAlertsConnector(BaseConnector):
         self._fetch_status = config.get("fetch_status")
         self._fetch_environment = config.get("fetch_environment")
         self._fetch_type = config.get("fetch_type")
+        self._start_time = config.get("start_time", "last_24h")
         self._max_fetch = config.get("max_fetch", 10)
         return phantom.APP_SUCCESS
+
+    @staticmethod
+    def _parse_start_time(start_time):
+        deltas = {
+            "last_1h": timedelta(hours=1),
+            "last_24h": timedelta(hours=24),
+            "last_7d": timedelta(days=7),
+            "last_30d": timedelta(days=30),
+            "last_90d": timedelta(days=90),
+        }
+        delta = deltas.get(start_time, timedelta(hours=24))
+        now = datetime.now(timezone.utc)
+        return (now - delta).strftime("%Y-%m-%dT%H:%M:%SZ"), now.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     def _build_alerts_request_body(self):
         body = {"page": 1}
@@ -101,6 +117,9 @@ class CyberintAlertsConnector(BaseConnector):
             filters["environments"] = [s.strip() for s in self._fetch_environment.split(",") if s.strip()]
         if self._fetch_type:
             filters["type"] = [s.strip() for s in self._fetch_type.split(",") if s.strip()]
+        if self._start_time:
+            date_from, date_to = self._parse_start_time(self._start_time)
+            filters["created_date"] = {"from": date_from, "to": date_to}
         if filters:
             body["filters"] = filters
         if self._max_fetch:
