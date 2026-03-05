@@ -57,6 +57,7 @@ class CyberintAlertsConnector(BaseConnector):
     def __init__(self):
         super().__init__()
         self._max_fetch = None
+        self._include_csv = None
         self._start_time = None
         self._fetch_type = None
         self._fetch_environment = None
@@ -91,6 +92,7 @@ class CyberintAlertsConnector(BaseConnector):
         self._fetch_type = config.get("fetch_type")
         self._start_time = config.get("start_time", "Last 24 Hours")
         self._max_fetch = config.get("max_fetch", 10)
+        self._include_csv = config.get("include_csv", False)
         return phantom.APP_SUCCESS
 
     @staticmethod
@@ -124,6 +126,8 @@ class CyberintAlertsConnector(BaseConnector):
             body["filters"] = filters
         if self._max_fetch:
             body["size"] = int(self._max_fetch)
+        if self._include_csv:
+            body["include_csv_attachments_as_json_content"] = True
         return body
 
     def _process_response(self, r, action_result):

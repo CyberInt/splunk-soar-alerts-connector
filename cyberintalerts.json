@@ -89,6 +89,14 @@
             "order": 8,
             "name": "Fetch Limit",
             "default": 10
+        },
+        "include_csv": {
+            "description": "Include CSV attachments as JSON content in alert data",
+            "data_type": "boolean",
+            "required": false,
+            "order": 9,
+            "name": "Include CSV Attachments",
+            "default": false
         }
     },
     "actions": [
