@@ -373,7 +373,7 @@ class CyberintAlertsConnector(BaseConnector):
             details_artifact = {
                 "name": "Alert Details",
                 "container_id": container_id,
-                "source_data_identifier": f"{alert.get('ref_id')}_details",
+                "source_data_identifier": f"{alert.get('ref_id')}",
                 "cef": alert_details,
             }
             self.save_artifact(details_artifact)
