@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Splunk Inc.
+# Copyright (c) 2025-2026 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -103,7 +103,7 @@ class CyberintAlertsConnector(BaseConnector):
             try:
                 soup = BeautifulSoup(r.text, "html.parser")
                 error_text = "\n".join([x.strip() for x in soup.text.split("\n") if x.strip()])
-            except:
+            except Exception:
                 error_text = "Cannot parse error details"
             message = f"Status Code: {r.status_code}. Data from server:\n{error_text}\n"
             return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
@@ -170,10 +170,54 @@ class CyberintAlertsConnector(BaseConnector):
                 alert["indicators"][idx] = response
         return phantom.APP_SUCCESS, alerts
 
+    def _build_alerts_filter(self, param):
+        """Build filters dictionary from action parameters."""
+        filters = {}
+
+        # Parse alert types (comma-separated or single value from dropdown)
+        alert_types = param.get("Alert_Types", "")
+        if alert_types:
+            types_list = [t.strip() for t in alert_types.split(",") if t.strip()]
+            if types_list:
+                filters["type"] = types_list
+
+        # Parse severities (comma-separated or single value from dropdown)
+        severities = param.get("Severities", "")
+        if severities:
+            sev_list = [s.strip() for s in severities.split(",") if s.strip()]
+            if sev_list:
+                filters["severity"] = sev_list
+
+        # Parse statuses (comma-separated or single value from dropdown)
+        statuses = param.get("Statuses", "")
+        if statuses:
+            status_list = [s.strip() for s in statuses.split(",") if s.strip()]
+            if status_list:
+                filters["status"] = status_list
+
+        return filters if filters else None
+
     def _handle_get_enriched_alerts(self, param):
         action_result = self.add_action_result(ActionResult(dict(param)))
-        self.debug_print(f"Fetching alerts from {ALERTS_ENDPOINT}")
-        ret_val, response = self._make_rest_call(ALERTS_ENDPOINT, action_result, method="post", json={})
+
+        # Build request body with filters
+        filters = self._build_alerts_filter(param)
+        include_csv = param.get("Include_CSV_Attachments", False)
+        page_size = param.get("Page_Size", 50)
+
+        # Validate page_size range
+        if page_size and (page_size < 10 or page_size > 100):
+            return action_result.set_status(phantom.APP_ERROR, "Page_Size must be between 10 and 100")
+
+        body = {
+            "size": page_size,
+            "include_csv_attachments_as_json_content": include_csv,
+        }
+        if filters:
+            body["filters"] = filters
+
+        self.debug_print(f"Fetching alerts from {ALERTS_ENDPOINT} with body: {body}")
+        ret_val, response = self._make_rest_call(ALERTS_ENDPOINT, action_result, method="post", json=body)
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 

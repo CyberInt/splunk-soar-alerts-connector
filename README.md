@@ -1,7 +1,7 @@
 # Cyberint Alerts
 
 Publisher: Check Point Cyberint <br>
-Connector Version: 1.0.2 <br>
+Connector Version: 1.0.3 <br>
 Product Vendor: Check Point Cyberint <br>
 Product Name: Cyberint Alerts <br>
 Minimum Product Version: 6.4.0
@@ -51,12 +51,23 @@ Read only: **True**
 
 #### Action Parameters
 
-No parameters are required for this action
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**Alert_Types** | optional | Comma-separated list of alert types to fetch (leave empty for all types) | string | |
+**Severities** | optional | Comma-separated severity levels to filter (leave empty for all severities) | string | |
+**Statuses** | optional | Comma-separated statuses to filter (leave empty for all statuses) | string | |
+**Include_CSV_Attachments** | optional | Include CSV attachments as JSON content in the response | boolean | |
+**Page_Size** | optional | Number of alerts to fetch per page (10-100) | numeric | |
 
 #### Action Output
 
 DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
 --------- | ---- | -------- | --------------
+action_result.parameter.Alert_Types | string | | |
+action_result.parameter.Severities | string | | |
+action_result.parameter.Statuses | string | | |
+action_result.parameter.Include_CSV_Attachments | boolean | | |
+action_result.parameter.Page_Size | numeric | | |
 action_result.message | string | | |
 summary.total_objects | numeric | | |
 summary.total_objects_successful | numeric | | |
@@ -168,7 +179,7 @@ ______________________________________________________________________
 
 Auto-generated Splunk SOAR Connector documentation.
 
-Copyright 2025 Splunk Inc.
+Copyright 2026 Splunk Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
