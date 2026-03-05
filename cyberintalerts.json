@@ -12,7 +12,7 @@
     "publisher": "Check Point Cyberint",
     "license": "Copyright (c) Check Point Cyberint, 2026",
     "app_version": "1.0.3",
-    "utctime_updated": "2026-01-20T21:56:40.277339Z",
+    "utctime_updated": "2026-03-05T11:00:02.949568Z",
     "package_name": "phantom_cyberintalerts",
     "main_module": "cyberintalerts_connector.py",
     "min_phantom_version": "6.4.0",

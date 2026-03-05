@@ -1,3 +1,1 @@
 **Unreleased**
-
-* Add fetch types, severity, status, include CSV attachments, page size parameters for the "get enriched alerts" action
