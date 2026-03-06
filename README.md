@@ -1,12 +1,12 @@
 # Cyberint Alerts
 
-Publisher: Check Point Cyberint <br>
-Connector Version: 1.0.3 <br>
-Product Vendor: Check Point Cyberint <br>
+Publisher: Check Point <br>
+Connector Version: 1.0.4 <br>
+Product Vendor: Check Point <br>
 Product Name: Cyberint Alerts <br>
-Minimum Product Version: 6.4.0
+Minimum Product Version: 7.0.0
 
-Cyberint and Splunk SOAR integration is here to simplify and streamline alerts for Splunk SOAR, bring enriched threat intelligence from the Argos Edge™ Digital Risk Protection Platform into Splunk SOAR and automatically implement playbooks and incident processes.
+Check Point Exposure Management and Splunk SOAR integration is here to simplify and streamline alerts for Splunk SOAR, bring enriched threat intelligence from the Argos Edge™ Digital Risk Protection Platform into Splunk SOAR and automatically implement playbooks and incident processes.
 
 ### Configuration variables
 
@@ -14,9 +14,16 @@ This table lists the configuration variables required to operate Cyberint Alerts
 
 VARIABLE | REQUIRED | TYPE | DESCRIPTION
 -------- | -------- | ---- | -----------
-**base_url** | required | string | Base URL of the Cyberint API |
-**access_token** | required | password | API Access Token for authentication |
-**customer_name** | required | string | The name of the company |
+**base_url** | required | string | Cyberint API URL on which the services run (e.g. https://your-company.cyberint.io) |
+**access_token** | required | password | Cyberint API access token |
+**customer_name** | required | string | Company (client) name associated with Cyberint instance |
+**fetch_severity** | optional | string | Comma-separated list of severities to fetch. Supported values: low, medium, high, very_high. If empty, all severity levels will be returned |
+**fetch_status** | optional | string | Comma-separated list of statuses to fetch. Supported values: open, acknowledged, closed. If empty, all statuses will be returned |
+**fetch_environment** | optional | string | Environments to fetch (comma separated). If empty, all available environments will be returned |
+**fetch_type** | optional | string | Comma-separated alert types to fetch. See API docs for supported types. If empty, all types will be returned |
+**start_time** | optional | string | Starting time frame for initial data retrieval. If not set, alerts from the last 24 hours will be fetched |
+**max_fetch** | optional | numeric | Max number of alerts per fetch. Default is 10, max is 100 |
+**include_csv** | optional | boolean | Include CSV attachments as JSON content in alert data |
 
 ### Supported Actions
 
@@ -51,23 +58,12 @@ Read only: **True**
 
 #### Action Parameters
 
-PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
---------- | -------- | ----------- | ---- | --------
-**Alert_Types** | optional | Comma-separated list of alert types to fetch (leave empty for all types) | string | |
-**Severities** | optional | Comma-separated severity levels to filter (leave empty for all severities) | string | |
-**Statuses** | optional | Comma-separated statuses to filter (leave empty for all statuses) | string | |
-**Include_CSV_Attachments** | optional | Include CSV attachments as JSON content in the response | boolean | |
-**Page_Size** | optional | Number of alerts to fetch per page (10-100) | numeric | |
+No parameters are required for this action
 
 #### Action Output
 
 DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
 --------- | ---- | -------- | --------------
-action_result.parameter.Alert_Types | string | | |
-action_result.parameter.Severities | string | | |
-action_result.parameter.Statuses | string | | |
-action_result.parameter.Include_CSV_Attachments | boolean | | |
-action_result.parameter.Page_Size | numeric | | |
 action_result.message | string | | |
 summary.total_objects | numeric | | |
 summary.total_objects_successful | numeric | | |

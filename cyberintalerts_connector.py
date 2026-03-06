@@ -141,7 +141,8 @@ class CyberintAlertsConnector(BaseConnector):
                 resp_json = r.json()
             except Exception as e:
                 return RetVal(
-                    action_result.set_status(phantom.APP_ERROR, f"Unable to parse JSON response. Error: {e}"), None,
+                    action_result.set_status(phantom.APP_ERROR, f"Unable to parse JSON response. Error: {e}"),
+                    None,
                 )
             if 200 <= r.status_code < 399:
                 return RetVal(phantom.APP_SUCCESS, resp_json)
