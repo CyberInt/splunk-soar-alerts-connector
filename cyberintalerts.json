@@ -401,6 +401,387 @@
             "parameters": {},
             "output": [],
             "versions": "EQ(*)"
+        },
+        {
+            "action": "ioc - get file reputation",
+            "identifier": "get_file_reputation",
+            "description": "Get the reputation of a file by its SHA256 hash",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {
+                "SHA256": {
+                    "description": "SHA256 hash of the file",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 0
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.parameter.SHA256",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.entity",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.risk",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.enrichment",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.benign",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                }
+            ],
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "ioc - get domain reputation",
+            "identifier": "get_domain_reputation",
+            "description": "Get the reputation of a domain",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {
+                "Domain": {
+                    "description": "Domain name to look up",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 0
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.parameter.Domain",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.entity",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.risk",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.enrichment",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.benign",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                }
+            ],
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "ioc - get ip reputation",
+            "identifier": "get_ip_reputation",
+            "description": "Get the reputation of an IPv4 address",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {
+                "IP": {
+                    "description": "IPv4 address to look up",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 0
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.parameter.IP",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.entity",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.risk",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.enrichment",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.benign",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                }
+            ],
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "ioc - get url reputation",
+            "identifier": "get_url_reputation",
+            "description": "Get the reputation of a URL",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {
+                "URL": {
+                    "description": "URL to look up",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 0
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.parameter.URL",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.entity",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.risk",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.enrichment",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.benign",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                }
+            ],
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "credentials - lookup by domain",
+            "identifier": "lookup_credentials_by_domain",
+            "description": "Look up exposed credentials by domain",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {
+                "Domain": {
+                    "description": "Domain to search for exposed credentials",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 0
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.parameter.Domain",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.employee",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.customer",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                }
+            ],
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "credentials - lookup by email",
+            "identifier": "lookup_credentials_by_email",
+            "description": "Look up exposed credentials by email address",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {
+                "Email": {
+                    "description": "Comma-separated list of email addresses to search (max 50)",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 0
+                },
+                "Mask_Password": {
+                    "description": "Mask passwords in results",
+                    "data_type": "boolean",
+                    "required": false,
+                    "order": 1,
+                    "default": true
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.parameter.Email",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.Mask_Password",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.data.*.raw_data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                }
+            ],
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "get cve intelligence",
+            "identifier": "get_cve_intelligence",
+            "description": "Get enriched CVE intelligence by CVE ID",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {
+                "CVE_ID": {
+                    "description": "CVE identifier (e.g. CVE-2024-1234)",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 0
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.parameter.CVE_ID",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.id",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.cve",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.cyberint_score",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.epss",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.known_exploited_vulnerability",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.threats",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.tags",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string"
+                }
+            ],
+            "versions": "EQ(*)"
         }
     ],
     "pip313_dependencies": {

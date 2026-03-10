@@ -28,6 +28,13 @@ from phantom.base_connector import BaseConnector
 from cyberintalerts_consts import (
     ALERTS_ENDPOINT,
     ALERTS_STATUS_ENDPOINT,
+    CREDENTIALS_BY_DOMAIN_ENDPOINT,
+    CREDENTIALS_BY_EMAIL_ENDPOINT,
+    CVE_GET_BY_ID_ENDPOINT,
+    IOC_DOMAIN_ENDPOINT,
+    IOC_FILE_SHA256_ENDPOINT,
+    IOC_IPV4_ENDPOINT,
+    IOC_URL_ENDPOINT,
     TAKEDOWN_REQUEST_ENDPOINT,
     TAKEDOWN_SUBMIT_ENDPOINT,
     ClosureReason,
@@ -402,6 +409,73 @@ class CyberintAlertsConnector(BaseConnector):
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
+    def _handle_get_file_reputation(self, param):
+        action_result = self.add_action_result(ActionResult(dict(param)))
+        sha256 = param["SHA256"]
+        ret_val, response = self._make_rest_call(IOC_FILE_SHA256_ENDPOINT, action_result, params={"value": sha256})
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+        action_result.add_data(response.get("data", {}))
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_get_domain_reputation(self, param):
+        action_result = self.add_action_result(ActionResult(dict(param)))
+        domain = param["Domain"]
+        ret_val, response = self._make_rest_call(IOC_DOMAIN_ENDPOINT, action_result, params={"value": domain})
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+        action_result.add_data(response.get("data", {}))
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_get_ip_reputation(self, param):
+        action_result = self.add_action_result(ActionResult(dict(param)))
+        ip = param["IP"]
+        ret_val, response = self._make_rest_call(IOC_IPV4_ENDPOINT, action_result, params={"value": ip})
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+        action_result.add_data(response.get("data", {}))
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_get_url_reputation(self, param):
+        action_result = self.add_action_result(ActionResult(dict(param)))
+        url = param["URL"]
+        ret_val, response = self._make_rest_call(IOC_URL_ENDPOINT, action_result, params={"value": url})
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+        action_result.add_data(response.get("data", {}))
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_get_cve_intelligence(self, param):
+        action_result = self.add_action_result(ActionResult(dict(param)))
+        cve_id = param["CVE_ID"]
+        endpoint = CVE_GET_BY_ID_ENDPOINT.format(cve_id=cve_id)
+        ret_val, response = self._make_rest_call(endpoint, action_result)
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+        action_result.add_data(response.get("data", {}))
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_lookup_credentials_by_domain(self, param):
+        action_result = self.add_action_result(ActionResult(dict(param)))
+        domain = param["Domain"]
+        body = {"domain": domain}
+        ret_val, response = self._make_rest_call(CREDENTIALS_BY_DOMAIN_ENDPOINT, action_result, method="post", json=body)
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+        action_result.add_data(response.get("data", {}))
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_lookup_credentials_by_email(self, param):
+        action_result = self.add_action_result(ActionResult(dict(param)))
+        emails = [e.strip() for e in param["Email"].split(",") if e.strip()]
+        mask_password = param.get("Mask_Password", True)
+        body = {"email": emails, "mask_password": mask_password}
+        ret_val, response = self._make_rest_call(CREDENTIALS_BY_EMAIL_ENDPOINT, action_result, method="post", json=body)
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+        action_result.add_data(response.get("data", {}))
+        return action_result.set_status(phantom.APP_SUCCESS)
+
     def handle_action(self, param):
         if hasattr(self, "_get_requests_session"):
             self._requests_session = self._get_requests_session()
@@ -421,6 +495,20 @@ class CyberintAlertsConnector(BaseConnector):
             ret_val = self._handle_retrieve_takedowns(param)
         elif action_id == "on_poll":
             ret_val = self._handle_ingest_alerts(param)
+        elif action_id == "get_file_reputation":
+            ret_val = self._handle_get_file_reputation(param)
+        elif action_id == "get_domain_reputation":
+            ret_val = self._handle_get_domain_reputation(param)
+        elif action_id == "get_ip_reputation":
+            ret_val = self._handle_get_ip_reputation(param)
+        elif action_id == "get_url_reputation":
+            ret_val = self._handle_get_url_reputation(param)
+        elif action_id == "get_cve_intelligence":
+            ret_val = self._handle_get_cve_intelligence(param)
+        elif action_id == "lookup_credentials_by_domain":
+            ret_val = self._handle_lookup_credentials_by_domain(param)
+        elif action_id == "lookup_credentials_by_email":
+            ret_val = self._handle_lookup_credentials_by_email(param)
 
         return ret_val
 

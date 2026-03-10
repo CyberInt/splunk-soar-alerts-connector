@@ -1,1 +1,2 @@
 * Add polling filters: fetch types, severity, status, include CSV attachments, page size
+* Add new actions:  ioc - get file, domain ip, url reputation, get cve intelligence, credentials - lookup by domain/email
