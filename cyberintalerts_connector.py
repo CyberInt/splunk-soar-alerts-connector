@@ -17,7 +17,7 @@
 # -----------------------------------------
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import phantom.app as phantom
 import requests
@@ -112,7 +112,7 @@ class CyberintAlertsConnector(BaseConnector):
             "Last 90 Days": timedelta(days=90),
         }
         delta = deltas.get(start_time, timedelta(hours=24))
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return (now - delta).strftime("%Y-%m-%dT%H:%M:%SZ"), now.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     def _build_alerts_request_body(self):
