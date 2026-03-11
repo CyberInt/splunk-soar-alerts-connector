@@ -4,7 +4,7 @@ Publisher: Check Point <br>
 Connector Version: 1.0.4 <br>
 Product Vendor: Check Point <br>
 Product Name: Cyberint Alerts <br>
-Minimum Product Version: 7.0.0
+Minimum Product Version: 7.1.0
 
 Check Point Exposure Management and Splunk SOAR integration is here to simplify and streamline alerts for Splunk SOAR, bring enriched threat intelligence from the Argos Edge™ Digital Risk Protection Platform into Splunk SOAR and automatically implement playbooks and incident processes.
 
