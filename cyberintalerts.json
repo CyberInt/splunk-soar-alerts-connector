@@ -33,7 +33,7 @@
             "name": "Cyberint Access Token"
         },
         "customer_name": {
-            "description": "Company (client) name associated with Cyberint instance",
+            "description": "Company name associated with Cyberint instance",
             "data_type": "string",
             "required": true,
             "order": 2,
